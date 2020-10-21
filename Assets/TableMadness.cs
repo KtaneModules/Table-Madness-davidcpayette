@@ -563,4 +563,43 @@ public class TableMadness : MonoBehaviour
         Debug.LogFormat("[Table Madness #{0}] " + s, moduleId);
     }
 
-}    
+#pragma warning disable 414
+    private readonly string TwitchHelpMessage = @"!{0} Letter Number submit (examples: !1 submit A4, !1 submit B 3 , !1 submit e1)";
+#pragma warning restore 414
+    IEnumerator ProcessTwitchCommand(string command)
+    {
+        string[] parameters = command.Split(' ', ',');
+        List<string> newparams = new List<string>(parameters.ToList());
+        if (newparams.Count < 4 && Regex.IsMatch(newparams[0], @"^\s*submit\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+        {           
+            if(newparams[1].Length > 1)
+            {
+                newparams.Add(newparams[1][1].ToString());
+                newparams[1] = newparams[1][0].ToString();
+            }
+            var let = 'F';
+            var num = '6';
+            char.TryParse(newparams[1].ToUpper(), out let);
+            char.TryParse(newparams[2], out num);
+            if (letters.Contains(let))
+            {
+                while (!answertexts[0].text.Equals(let.ToString()))
+                {
+                    yield return new WaitForSeconds(0.05f);
+                    buttons[1].OnInteract();
+                }
+            }
+            if (numbers.Contains(num))
+            {
+                while (!answertexts[1].text.Equals(num.ToString()))
+                {
+                    yield return new WaitForSeconds(0.05f);
+                    buttons[3].OnInteract();
+                }
+            }
+            buttons[4].OnInteract();
+            yield break;
+        }
+    }
+
+}       
